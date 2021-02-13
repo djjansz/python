@@ -1,2 +1,2 @@
 # python
-Repo of homemade python programs
+Repository of Python Programs
