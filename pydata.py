@@ -60,7 +60,7 @@ multiple lines so use triple quotes
 """
 s.count('\n') # 3 - the number of new lines in s
 #strings are unmutable, you cannot change a string, but you can modify a second variable based on the first variable
-b=a.replace('string','longer string')
+b=s.replace('string','longer string')
 #converting datatypes
 a = 5.6
 s = str(a)
@@ -97,6 +97,7 @@ def add_and_maybe_multiply(a, b, c=None):
     if c is not None:
         result = result * c
     return result
+
 # None is a reserved keyword and it has it's own type called NoneType
 type(None) #NoneType
 #the python built-in datetime module provides datetime, date and time types
@@ -131,14 +132,17 @@ elif 0 < x < 5:
     print('Positive but smaller than 5')
 else:
     print('Positive and larger than or equal to 5')
+
 # a compound condition using the or operator
 a = 5; b = 7
 c = 8; d = 4
 if a < b or c > d:
     print('Made it')
+
 # chaining comparisons is allowed in python
 if 4 > 3 > 2 > 1:
     print('chained comparisons work!')
+
 # for loops iterate over a collection (list or tuple) or an iterator
 sequence = [1, 2, None, 4, None, 5]
 total = 0
@@ -146,7 +150,7 @@ for value in sequence:
     if value is None:
         continue # used to avoid an error from summing over None
     total += value
-    
+
 print(total)
 # a for loop can be exited altogether with the break keyword
 sequence = [1, 2, 0, 4, 6, 5, 2, 1]
@@ -163,6 +167,7 @@ for i in range(4):
         if j > i:
             break
         print((i,j))
+
 # a while loop specifies a condition and a block of code to be run until the condition evaluates to false
 x = 256
 total = 0
@@ -195,6 +200,7 @@ seq = [1, 2, 3, 4]
 for i in range(len(seq)):
     val = seq[i]
     print(val)
+
 # sum up all of the numbers from 0 to 99,999 that are multiples of 3 or 5
 sum = 0
 for i in range(100000):
@@ -206,7 +212,6 @@ print(sum)
 # ternary expressions have the same effect as the usual if condition: value if true else: value if false
 x = -2
 'Non-negative' if x >= 0 else 'Negative'
-
 
 a is b
 # the list functions creates a distinct copy 
