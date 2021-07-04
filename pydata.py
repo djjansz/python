@@ -705,14 +705,13 @@ attempt_float((1, 2)) # (1,2)
 path = 'examples/segismundo.txt'
 f = open(path)
 lines = [x.rstrip() for x in open(path)]
-lines
-#['SueÃ±a el rico en su riqueza,', 'que mÃ¡s cuidados le ofrece;', '', 'sueÃ±a el pobre que padece', 'su miseria y su pobreza;', '', 'sueÃ±a el que a medrar empieza,', 'sueÃ±a el que afana y pretende,', 'sueÃ±a el que agravia y ofende,', '', 'y en el mundo, en conclusiÃ³n,', 'todos sueÃ±an lo que son,', 'aunque ninguno lo entiende.', '']
+lines[0:2] #['SueÃ±a el rico en su riqueza,', 'que mÃ¡s cuidados le ofrece;']
 f.close()
 # the with statment automatically closes after the with block so there is no need use the close method
 with open(path) as f:
     lines = [x.rstrip() for x in f]
 
-lines #['SueÃ±a el rico en su riqueza,', 'que mÃ¡s cuidados le ofrece;', '', 'sueÃ±a el pobre que padece', 'su miseria y su pobreza;', '', 'sueÃ±a el que a medrar empieza,', 'sueÃ±a el que afana y pretende,', 'sueÃ±a el que agravia y ofende,', '', 'y en el mundo, en conclusiÃ³n,', 'todos sueÃ±an lo que son,', 'aunque ninguno lo entiende.', '']    
+lines[0:2] #['SueÃ±a el rico en su riqueza,', 'que mÃ¡s cuidados le ofrece;']
 
 # reads teh data in UTF-8
 f = open(path)
@@ -738,8 +737,8 @@ with open('tmp.txt', 'w') as handle:
 with open('tmp.txt') as f:
     lines = f.readlines()
 
-lines #['SueÃ±a el rico en su riqueza,\n', 'que mÃ¡s cuidados le ofrece;\n', 'sueÃ±a el pobre que padece\n', 'su miseria y su pobreza;\n', 'sueÃ±a el que a medrar empieza,\n', 'sueÃ±a el que afana y pretende,\n', 'sueÃ±a el que agravia y ofende,\n', 'y en el mundo, en conclusiÃ³n,\n', 'todos sueÃ±an lo que son,\n', 'aunque ninguno lo entiende.\n']
-# delete the temporary file with the remove method of the os module
+lines[0:2] #['SueÃ±a el rico en su riqueza,', 'que mÃ¡s cuidados le ofrece;']
+# import the os module so that we can use the remove method to delete files
 import os
 os.remove('tmp.txt')
 # Bytes and Unicode with Files
