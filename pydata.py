@@ -768,3 +768,765 @@ with open(sink_path, encoding='iso-8859-1') as f:
 os.remove(sink_path)
 
 
+# create a 2 x 3 array
+import numpy as np
+# Generate some random data
+data = np.random.randn(2, 3)
+data
+#array([[ 0.52248239,  1.44647276,  0.21856349],
+#       [ 1.84049574, -0.53824593,  0.74871117]])
+# multiply all elements by 10
+data * 10
+#array([[ 5.22482389, 14.46472755,  2.18563487],
+#       [18.40495738, -5.38245935,  7.4871117 ]])
+#add all elements together
+data + data
+#array([[ 1.04496478,  2.89294551,  0.43712697],
+#       [ 3.68099148, -1.07649187,  1.49742234]])
+# create a one dimensional array with the Numerical Python (aka NumPy) package
+data1 = [6, 7.5, 8, 0, 1]
+arr1 = np.array(data1)
+arr1 # array([6. , 7.5, 8. , 0. , 1. ])
+# you can create a multidimensional array from nested sequences like a list of lists
+data2 = [[1, 2, 3, 4], [5, 6, 7, 8]]
+arr2 = np.array(data2)
+arr2
+#array([[1, 2, 3, 4],
+#       [5, 6, 7, 8]])
+# the ndim, shape and dtype attributes return the number of rows, rows x columns and the data type, respectively
+arr2.ndim # 2 (rows)
+arr2.shape #(2,4) (rows,columns)
+# possible numpy datatypes are int8, int16, int32, int64, uint8, uint16, uint32, uint64, float16, float32, float64, float128, complex64, complex128, complex256, bool, object, string_ or unicode_
+arr1.dtype # dtype('float64')
+arr2.dtype # dtype('int32')
+# there are several array creation functions used to make specific arrays, such as the identity with 1s on the diagonal, or to copy the contents or the shape of another array
+np.zeros(10) # array([0., 0., 0., 0., 0., 0., 0., 0., 0., 0.])
+np.zeros((3, 6))
+# array([[0., 0., 0., 0., 0., 0.],
+#        [0., 0., 0., 0., 0., 0.],
+#        [0., 0., 0., 0., 0., 0.]])
+np.empty((2, 3, 2))
+np.ones_like(arr1) # array([1., 1., 1., 1., 1.])
+np.identity(3)
+# array([[1., 0., 0.],
+#        [0., 1., 0.],
+#        [0., 0., 1.]])
+np.arange(15) # array([ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14])
+### Data Types for ndarrays
+arr1 = np.array([1, 2, 3], dtype=np.float64)
+arr2 = np.array([1, 2, 3], dtype=np.int32)
+arr1.dtype #dtype('float64')
+arr2.dtype #dtype('int32')
+# cast an array from one dtype to another using ndarrays astype method
+arr = np.array([1, 2, 3, 4, 5])
+arr.dtype #dtype('int32')
+float_arr = arr.astype(np.float64)
+float_arr.dtype #dtype('float64')
+# be aware that if you cast float to integer the decimal part will be left out
+arr = np.array([3.7, -1.2, -2.6, 0.5, 12.9, 10.1])
+arr #array([ 3.7, -1.2, -2.6,  0.5, 12.9, 10.1])
+arr.astype(np.int32) #array([ 3, -1, -2,  0, 12, 10])
+# converting strings numbers to numeric numbers with the .astype(float) method
+numeric_strings = np.array(['1.25', '-9.6', '42'], dtype=np.string_)
+numeric_strings.astype(float) #array([ 1.25, -9.6 , 42.  ])
+# you can also cast by specifying the array you want the data type to be like instead of specifying  a specific dtype
+int_array = np.arange(10)
+int_array.dtype #dtype('int32')
+calibers = np.array([.22, .270, .357, .380, .44, .50], dtype=np.float64)
+int_array.astype(calibers.dtype) #array([0., 1., 2., 3., 4., 5., 6., 7., 8., 9.])
+# calling astype will create a new array, hence the need for the double .dtype method call
+int_array.astype(calibers.dtype).dtype #dtype('float64')
+# note that there are also shorthand dtypes, such as the type code u4 which means means uint32 - an unsigned 32-bit integer type
+empty_uint32 = np.empty(8, dtype='u4')
+empty_uint32 # array([1, 2, 3, 4, 5, 6, 7, 8], dtype=uint32)
+### Arithmetic with NumPy Arrays
+# numpy vectorization allows you to express batch operations without having to use any for loops. Arithmetic operations between same sized arrays occurs element-wise.
+arr = np.array([[1., 2., 3.], [4., 5., 6.]])
+arr
+#array([[1., 2., 3.],
+#       [4., 5., 6.]])
+arr * arr
+#array([[ 1.,  4.,  9.],
+#       [16., 25., 36.]])
+arr - arr
+#array([[0., 0., 0.],
+#       [0., 0., 0.]])
+1 / arr
+#array([[1.        , 0.5       , 0.33333333],
+#       [0.25      , 0.2       , 0.16666667]])
+arr ** 0.5
+#array([[1.        , 1.41421356, 1.73205081],
+#       [2.        , 2.23606798, 2.44948974]])
+arr2 = np.array([[0., 4., 1.], [7., 2., 12.]])
+arr2
+#array([[ 0.,  4.,  1.],
+#       [ 7.,  2., 12.]])
+arr2 > arr
+#array([[False,  True, False],
+#       [ True, False,  True]])
+### Basic Indexing and Slicing
+arr = np.arange(10)
+arr #array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+arr[5] #5
+arr[5:8] #array([5, 6, 7])
+# if you assign a scalar to a slice like this the value is broadcasted to the entire selection of the original array
+arr[5:8] = 12
+arr #array([ 0,  1,  2,  3,  4, 12, 12, 12,  8,  9])
+# taking the slice again shows that the modification is reflected in the source array
+arr_slice = arr[5:8]
+arr_slice #array([12, 12, 12])
+# if we modify a slice of the slice then the mutations are reflected in the origional source array arr
+arr_slice[1] = 12345
+arr #array([0,1,2,3,4,12,12345,12,8,9])
+# the bare slice operator [:] assigns values the same value throughout the entire array slice
+arr_slice[:] = 64
+arr # array([ 0,  1,  2,  3,  4, 64, 64, 64,  8,  9])
+# if you want a copy and not a view use the copy() method. Note that the 128 doesn't get assigned back to the source array when we do it this way.
+arr_slice2=arr[5:8].copy()
+arr_slice2 #array([64, 64, 64])
+arr_slice2[:]=128
+arr #array([ 0,  1,  2,  3,  4, 64, 64, 64,  8,  9])
+# two dimensional arrays are such that the elements at each index are one-dimensional arrays (lists in this example)
+arr2d = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+arr2d[2] # array([7, 8, 9])
+# accessing individual elements recursively
+arr2d[0][2] #3
+# an alternative method of accessing elements is with a comma-separated list of indices
+arr2d[0, 2] #3
+
+arr3d = np.array([[[1, 2, 3], [4, 5, 6]], [[7, 8, 9], [10, 11, 12]]])
+arr3d
+#array([[[ 1,  2,  3],
+#        [ 4,  5,  6]],
+#       [[ 7,  8,  9],
+#        [10, 11, 12]]])
+arr3d[0]
+#array([[1, 2, 3],
+#       [4, 5, 6]])
+# you can assign both scalar values or arras to an element of a 3d array. Assigning the scalar 42 spreads this number to all elements of the list.
+old_values = arr3d[0].copy()
+arr3d[0] = 42
+arr3d
+#array([[[42, 42, 42],
+#        [42, 42, 42]],
+#       [[ 7,  8,  9],
+#        [10, 11, 12]]])
+# we can reassign the old values back to the array so that it remains unchanged
+arr3d[0] = old_values
+arr3d
+#array([[[ 1,  2,  3],
+#        [ 4,  5,  6]],
+#       [[ 7,  8,  9],
+#        [10, 11, 12]]])
+# using a comma separated list to slice, this says to take the first element (position 0) of the second row (position 1)
+arr3d[1, 0] # array([7, 8, 9])
+# we can achieve the same results, taking the first element of the second row, by indexing in two steps
+x = arr3d[1]
+x
+#array([[ 7,  8,  9],
+#       [10, 11, 12]])
+x[0] #array([7, 8, 9])
+          
+#### Indexing with slices
+# one-dimensional ndarrays can be sliced with the same syntax as with lists
+arr #array([ 0,  1,  2,  3,  4, 64, 64, 64,  8,  9])
+# take position 2 to 7 (not including 7)
+arr[1:6] #array([ 1,  2,  3,  4, 64])
+# slicing two-dimensional arrays is different
+arr2d
+#array([[1, 2, 3],
+#       [4, 5, 6],
+#       [7, 8, 9]])
+# select the frist two rows of arr2d
+arr2d[:2]
+#array([[1, 2, 3],
+#       [4, 5, 6]])
+# select the first two rows, and from that we do not take position 0 (take the second column onwards) 
+arr2d[:2, 1:]
+#array([[2, 3],
+#       [5, 6]])
+# take the second element (position 1) and then from there take everything up to the third element (position 0 and 1)
+arr2d[1, :2] #array([4, 5])
+# first we take up to the second element (position 0 and 1), and from there take the thrid element (position 2)
+arr2d[:2, 2]
+#array([3, 6])
+# take all rows, but in the nested list only take the first element (position 0)
+arr2d[:, :1]
+#array([[1],
+#       [4],
+#       [7]])
+# assigning to a slice experssion will assign the value to the whole selection
+arr2d[:2, 1:] = 0
+arr2d
+#array([[1, 0, 0],
+#       [4, 0, 0],
+#       [7, 8, 9]])
+
+
+### Boolean Indexing
+names = np.array(['Bob', 'Joe', 'Will', 'Bob', 'Will', 'Joe', 'Joe'])
+data = np.random.randn(7, 4)
+names #array(['Bob', 'Joe', 'Will', 'Bob', 'Will', 'Joe', 'Joe'], dtype='<U4')
+data
+#array([[ 0.29353275, -0.46234592, -0.98059036, -0.07976851],
+#       [-0.5396112 ,  1.53302273, -0.20015644,  0.19274499],
+#       [ 1.25002541,  0.35926976, -0.50318698, -0.43216709],
+#       [-1.0807837 ,  0.43623544,  1.22679243, -0.04425051],
+#       [ 1.05313594, -1.45063462,  2.24046604, -1.0158813 ],
+#       [ 0.59746729, -0.58091359, -0.07061595,  0.49722188],
+#       [ 0.39073427,  0.48976425,  1.56803019,  1.18032821]])
+# comparing names with the string Bob yields a boolean array
+names == 'Bob' #array([ True, False, False,  True, False, False, False])
+# the boolean array works because the names array has seven elements and the data array has seven rows
+data[names == 'Bob']
+#array([[ 0.29353275, -0.46234592, -0.98059036, -0.07976851],
+#       [-1.0807837 ,  0.43623544,  1.22679243, -0.04425051]])
+# comparisions with arrays are vectoized, and we ca; also add slicing in the same step
+data[names == 'Bob', 2:]
+#array([[-0.98059036, -0.07976851],
+#       [ 1.22679243, -0.04425051]])
+data[names == 'Bob', 3]
+#array([-0.07976851, -0.04425051])
+# selecting everything but Bob with teh not equals operator
+names != 'Bob' #array([False,  True,  True, False,  True,  True,  True])
+# another way to invert a condition is to use the ~ operator
+data[~(names == 'Bob')]
+#array([[-0.5396112 ,  1.53302273, -0.20015644,  0.19274499],
+#       [ 1.25002541,  0.35926976, -0.50318698, -0.43216709],
+#       [ 1.05313594, -1.45063462,  2.24046604, -1.0158813 ],
+#      [ 0.59746729, -0.58091359, -0.07061595,  0.49722188],
+#      [ 0.39073427,  0.48976425,  1.56803019,  1.18032821]])
+# the ~ opartor can be used to invert general conditions. Note the = for assign and == for the arithmetic equivalence comparison
+cond = names == 'Bob'
+data[~cond]
+#array([[-0.5396112 ,  1.53302273, -0.20015644,  0.19274499],
+#       [ 1.25002541,  0.35926976, -0.50318698, -0.43216709],
+#       [ 1.05313594, -1.45063462,  2.24046604, -1.0158813 ],
+#       [ 0.59746729, -0.58091359, -0.07061595,  0.49722188],
+#       [ 0.39073427,  0.48976425,  1.56803019,  1.18032821]])
+# conditions ccan be combined with boolean arithmetic operators & (and) and | (or)
+mask = (names == 'Bob') | (names == 'Will')
+mask # #array([ True, False,  True,  True,  True, False, False])
+data[mask]
+#array([[ 0.29353275, -0.46234592, -0.98059036, -0.07976851],
+#       [ 1.25002541,  0.35926976, -0.50318698, -0.43216709],
+#       [-1.0807837 ,  0.43623544,  1.22679243, -0.04425051],
+#       [ 1.05313594, -1.45063462,  2.24046604, -1.0158813 ]])
+# boolean arrays can be used to set values, such as setting all negative values to zero (negative dollar amounts are often times removed from modelling data)
+data[data < 0] = 0
+data
+#array([[0.29353275, 0.        , 0.        , 0.        ],
+#       [0.        , 1.53302273, 0.        , 0.19274499],
+#       [1.25002541, 0.35926976, 0.        , 0.        ],
+#       [0.        , 0.43623544, 1.22679243, 0.        ],
+#       [1.05313594, 0.        , 2.24046604, 0.        ],
+#       [0.59746729, 0.        , 0.        , 0.49722188],
+#       [0.39073427, 0.48976425, 1.56803019, 1.18032821]])
+# one-dimensional boolean arrays can be used to set whole rows or columns. In this case, not Joe occurs in the first, third, fourth and fifth element, and so 7 is assigned at these rows.
+data[names != 'Joe'] = 7
+data
+#array([[7.        , 7.        , 7.        , 7.        ],
+#       [0.        , 1.53302273, 0.        , 0.19274499],
+#       [7.        , 7.        , 7.        , 7.        ],
+#       [7.        , 7.        , 7.        , 7.        ],
+#       [7.        , 7.        , 7.        , 7.        ],
+#       [0.59746729, 0.        , 0.        , 0.49722188],
+#       [0.39073427, 0.48976425, 1.56803019, 1.18032821]])
+
+### Fancy Indexing
+# fancy indexing refers to indexing using integer arrays
+arr = np.empty((8, 4))
+for i in range(8):
+       arr[i] = i
+
+arr
+#array([[0., 0., 0., 0.],
+#       [1., 1., 1., 1.],
+#       [2., 2., 2., 2.],
+#       [3., 3., 3., 3.],
+#       [4., 4., 4., 4.],
+#       [5., 5., 5., 5.],
+#       [6., 6., 6., 6.],
+#       [7., 7., 7., 7.]])
+# to select out a subset of rows in a specific order, you pass a list or ndarray of integers specifying the order
+arr[[4, 3, 0, 6]]
+#array([[4., 4., 4., 4.],
+#       [3., 3., 3., 3.],
+#       [0., 0., 0., 0.],
+#       [6., 6., 6., 6.]])
+# using negative indices selects rows from the end. Here we start with three from the bottom, then five from the bottom then seven from the bottom
+arr[[-3, -5, -7]]
+#array([[5., 5., 5., 5.],
+#       [3., 3., 3., 3.],
+#       [1., 1., 1., 1.]])
+# create anohter 8x4 array using the arange array creation function
+arr = np.arange(32).reshape((8, 4))
+arr
+#array([[ 0,  1,  2,  3],
+#       [ 4,  5,  6,  7],
+#       [ 8,  9, 10, 11],
+#       [12, 13, 14, 15],
+#       [16, 17, 18, 19],
+#       [20, 21, 22, 23],
+#       [24, 25, 26, 27],
+#       [28, 29, 30, 31]])
+# passing multiple index arrays allows us to select a one-dimensional array of elements representing each tuple of indicies 4 is in position (1,0), 23 is in position (5,3), and so on.
+arr[[1, 5, 7, 2], [0, 3, 1, 2]] #array([ 4, 23, 29, 10])
+# in order to return a multidimensional array you have to use the bare slice and double square brackets. Here we start by taking row 2 (position 1), all columns, but we change the order to first, fourth, second, and then third eleemnt.
+arr[[1, 5, 7, 2]][:, [0, 3, 1, 2]]
+#array([[ 4,  7,  5,  6],
+#       [20, 23, 21, 22],
+#       [28, 31, 29, 30],
+#       [ 8, 11,  9, 10]])
+
+### Transposing Arrays and Swapping Axes
+
+arr = np.arange(15).reshape((3, 5))
+arr
+arr.T
+
+arr = np.random.randn(6, 3)
+arr
+np.dot(arr.T, arr)
+
+arr = np.arange(16).reshape((2, 2, 4))
+arr
+arr.transpose((1, 0, 2))
+
+arr
+arr.swapaxes(1, 2)
+
+## Universal Functions: Fast Element-Wise Array Functions
+
+arr = np.arange(15).reshape((3, 5))
+arr
+#array([[ 0,  1,  2,  3,  4],
+#       [ 5,  6,  7,  8,  9],
+#       [10, 11, 12, 13, 14]])
+# the T attribute transposes an array
+arr.T
+#array([[ 0,  5, 10],
+#       [ 1,  6, 11],
+#       [ 2,  7, 12],
+#       [ 3,  8, 13],
+#       [ 4,  9, 14]])
+arr = np.random.randn(6, 3)
+arr
+#array([[ 0.82482902,  0.04049784, -1.07605549],
+#       [ 0.0056238 , -0.20551922,  0.77800613],
+#       [-0.07141027, -0.17985994,  1.56802742],
+#       [ 0.84875952, -2.19759838, -0.68917457],
+#       [-1.41726407, -0.65048874, -1.1894586 ],
+#       [ 0.38828659, -0.21815071, -0.04697943]])
+# np.dot is known as the inner matrix dot product
+np.dot(arr.T, arr)
+#array([[ 3.56527059, -0.98293137,  0.08743226],
+#       [-0.98293137,  5.37639183,  1.81300848],
+#       [ 0.08743226,  1.81300848,  6.11387933]])
+arr = np.arange(16).reshape((2, 2, 4))
+arr
+#array([[[ 0,  1,  2,  3],
+#        [ 4,  5,  6,  7]],
+#        [[ 8,  9, 10, 11],
+#        [12, 13, 14, 15]]])
+# for higher dimensional arrays, transpose will accept a tupe of axis numbers
+arr.transpose((1, 0, 2))
+#array([[[ 0,  1,  2,  3],
+#        [ 8,  9, 10, 11]],
+#       [[ 4,  5,  6,  7],
+#        [12, 13, 14, 15]]])
+arr
+#array([[[ 0,  1,  2,  3],
+#        [ 4,  5,  6,  7]],
+#       [[ 8,  9, 10, 11],
+#        [12, 13, 14, 15]]])
+#the swapaxes method takes a pair of axis numbers and switches them to rearrange teh data
+arr.swapaxes(1, 2)
+#array([[[ 0,  4],
+#        [ 1,  5],
+#        [ 2,  6],
+#        [ 3,  7]],
+#       [[ 8, 12],
+#        [ 9, 13],
+#        [10, 14],
+#        [11, 15]]])
+ 
+ 
+## Universal Functions: Fast Element-Wise Array Functions
+arr = np.arange(10)
+arr
+#array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+# square root and the exponential function are simple element-wise transformations
+np.sqrt(arr)
+#array([0.        , 1.        , 1.41421356, 1.73205081, 2.        ,
+#       2.23606798, 2.44948974, 2.64575131, 2.82842712, 3.        ])
+# unary functions, or ufuncs, like add, maximum, sqrt and exp, accept an optional out argument
+np.exp(arr)
+#array([1.00000000e+00, 2.71828183e+00, 7.38905610e+00, 2.00855369e+01,
+#       5.45981500e+01, 1.48413159e+02, 4.03428793e+02, 1.09663316e+03,
+#       2.98095799e+03, 8.10308393e+03])
+x = np.random.randn(8)
+y = np.random.randn(8)
+x
+#array([ 0.50742572, -0.51284844, -1.00526395, -2.49860753, -0.53808498,
+#       -1.72860626,  0.0114531 , -0.51914164])
+y
+#array([ 3.12933496, -0.36090838,  0.04703325, -1.19334313,  1.15626668,
+#        0.14802248, -1.01369619,  0.06406296])
+# numpy's maximum function takes two arrays as input and computes the element-wise maximium of the elements (like R's pmax function)
+np.maximum(x, y)
+#array([ 3.12933496, -0.36090838,  0.04703325, -1.19334313,  1.15626668,
+#        0.14802248,  0.0114531 ,  0.06406296])
+arr = np.random.randn(7) * 5
+arr
+#array([-5.69881437,  3.15535306, -4.30798758,  5.90180301, -1.4648142 ,
+#       -2.62031056, -5.55884052])
+# the modf function returns two arrays - a fractional and an the integral part of a floating point array
+remainder, whole_part = np.modf(arr)
+remainder
+#array([-0.69881437,  0.15535306, -0.30798758,  0.90180301, -0.4648142 ,
+#      -0.62031056, -0.55884052])
+whole_part
+#array([-5.,  3., -4.,  5., -1., -2., -5.])
+arr
+#array([-5.69881437,  3.15535306, -4.30798758,  5.90180301, -1.4648142 ,
+#       -2.62031056, -5.55884052])
+ 
+## Array-Oriented Programming with Arrays
+points = np.arange(-5, 5, 0.01) # 1000 equally spaced points
+# create a grid of values for plotting using the meshgrid function which takes two 1d arrays and produces two 2D matrices representingg all the pairs of (x,y)
+xs, ys = np.meshgrid(points, points)
+ys
+#array([[-5.  , -5.  , -5.  , ..., -5.  , -5.  , -5.  ],
+#       [-4.99, -4.99, -4.99, ..., -4.99, -4.99, -4.99],
+#       [-4.98, -4.98, -4.98, ..., -4.98, -4.98, -4.98],
+#       ...,
+#       [ 4.97,  4.97,  4.97, ...,  4.97,  4.97,  4.97],
+#       [ 4.98,  4.98,  4.98, ...,  4.98,  4.98,  4.98],
+#       [ 4.99,  4.99,  4.99, ...,  4.99,  4.99,  4.99]])
+# suppose we want to evaluate sqrt(x ** 2 + y ** 2) accross a grid of vlaues
+z = np.sqrt(xs ** 2 + ys ** 2)
+z
+#array([[7.07106781, 7.06400028, 7.05693985, ..., 7.04988652, 7.05693985,
+#        7.06400028],
+#       [7.06400028, 7.05692568, 7.04985815, ..., 7.04279774, 7.04985815,
+#        7.05692568],
+#       [7.05693985, 7.04985815, 7.04278354, ..., 7.03571603, 7.04278354,
+#        7.04985815],
+#       ...,
+#       [7.04988652, 7.04279774, 7.03571603, ..., 7.0286414 , 7.03571603,
+#        7.04279774],
+#       [7.05693985, 7.04985815, 7.04278354, ..., 7.03571603, 7.04278354,
+#        7.04985815],
+#       [7.06400028, 7.05692568, 7.04985815, ..., 7.04279774, 7.04985815,
+#        7.05692568]])
+import matplotlib.pyplot as plt
+plt.imshow(z, cmap=plt.cm.gray); plt.colorbar() 
+#<matplotlib.image.AxesImage object at 0x00000166ED41BAC0>
+#<matplotlib.colorbar.Colorbar object at 0x00000166ED47B550>
+plt.title("Image plot of $\sqrt{x^2 + y^2}$ for a grid of values") 
+plt.draw()
+plt.close('all')
+                                                                                                                   
+### Expressing Conditional Logic as Array Operations
+
+xarr = np.array([1.1, 1.2, 1.3, 1.4, 1.5])
+yarr = np.array([2.1, 2.2, 2.3, 2.4, 2.5])
+cond = np.array([True, False, True, True, False])
+# suppose we want to take values from xarr only when cond is True, a list comprehension does the trick
+result = [(x if c else y)
+        for x, y, c in zip(xarr, yarr, cond)]
+
+result #[1.1, 2.2, 1.3, 1.4, 2.5]
+# numpy's where function allows us to write this very concisely
+result = np.where(cond, xarr, yarr)
+result #array([1.1, 2.2, 1.3, 1.4, 2.5])
+
+arr = np.random.randn(4, 4)
+arr
+#array([[ 0.00859354, -1.09657651,  1.14750448, -0.99270475],
+#       [ 0.14306963, -0.590324  ,  0.97639398, -0.08868938],
+#       [ 1.25712477, -0.69637457, -0.16818035, -1.45435512],
+#       [-1.91623718, -0.24010107, -1.67876727,  2.52690646]])
+arr > 0
+#array([[ True, False,  True, False],
+#       [ True, False,  True, False],
+#       [ True, False, False, False],
+#       [False, False, False,  True]])
+# replace all positive values with 2 and all negative values with -2
+np.where(arr > 0, 2, -2)
+#array([[ 2, -2,  2, -2],
+#       [ 2, -2,  2, -2],
+#      [ 2, -2, -2, -2],
+#       [-2, -2, -2,  2]])
+# the second argument is like an else condition and if you put the original object in there it leaves it unchanged when the condition is false
+np.where(arr > 0, 2, arr) # set only positive values to 2
+#array([[ 2.        , -1.09657651,  2.        , -0.99270475],
+#       [ 2.        , -0.590324  ,  2.        , -0.08868938],
+#      [ 2.        , -0.69637457, -0.16818035, -1.45435512],
+#       [-1.91623718, -0.24010107, -1.67876727,  2.        ]])
+    
+### Mathematical and Statistical Methods
+arr = np.random.randn(5, 4)
+arr
+#array([[-1.41127063, -0.03029357,  0.43067475,  0.36532058],
+#       [-1.03108375,  0.15141741, -0.78136924,  0.03876025],
+#       [ 1.19910151, -1.02366398,  0.27687438,  0.42023381],
+#       [-1.56317633, -0.515787  , -0.16210095, -0.47815209],
+#       [-0.39417392,  0.23990718,  0.3449246 ,  0.87408154]])
+arr.mean() #-0.15248877158245885
+np.mean(arr) #-0.15248877158245885
+arr.sum() #-3.049775431649177
+# functions like mean, std and sum accept an optional axis argument that computes the statistic over the requested axis, resulting in an array of results
+
+arr.mean(axis=1) # compute the mean accross the columns
+#array([-0.16139222, -0.40556883,  0.21813643, -0.67980409,  0.26618485])
+arr.sum(axis=0) # compute the sum down the rows
+#array([-3.20060311, -1.17841996,  0.10900355,  1.22024409])
+# cumsum produces the intermediate results before showing the total cumulative sum at the end of hte list
+arr = np.array([0, 1, 2, 3, 4, 5, 6, 7])
+arr.cumsum() #array([ 0,  1,  3,  6, 10, 15, 21, 28], dtype=int32)
+arr = np.array([[0, 1, 2], [3, 4, 5], [6, 7, 8]])
+arr
+#array([[0, 1, 2],
+#       [3, 4, 5],
+#       [6, 7, 8]])
+# perform a cumulative sum down the rows
+arr.cumsum(axis=0)
+#array([[ 0,  1,  2],
+#       [ 3,  5,  7],
+#       [ 9, 12, 15]], dtype=int32)
+# perform a cumulative product accross the columns
+arr.cumprod(axis=1)
+#array([[  0,   0,   0],
+#      [  3,  12,  60],
+#      [  6,  42, 336]], dtype=int32)
+ 
+
+### Methods for Boolean Arrays
+arr = np.random.randn(100)
+#sum is often used as a way to count the number of Trues in a boolean array
+(arr > 0).sum() # Number of positive values (53 in the first sample of 100 random normal values)
+# the any method tests whenther one or more values is True
+bools = np.array([False, False, True, False])
+bools.any()
+True
+# the all method checks if every value is True
+ bools.all()
+False
+### Sorting
+arr = np.random.randn(6)
+arr
+#array([ 1.9989683 ,  0.3476939 , -0.13847995,  0.12615114, -1.07125211,
+#        0.14856577])
+# the sort method sorts the array in-place
+arr.sort()
+arr
+#array([-1.07125211, -0.13847995,  0.12615114,  0.14856577,  0.3476939 ,
+#        1.9989683 ])
+arr = np.random.randn(5, 3)
+arr
+#array([[ 1.68804106,  0.44347918, -0.10486119],
+#       [ 0.69635703, -1.45703416, -0.26444576],
+#       [-0.19615279, -0.437229  , -0.3630979 ],
+#      [-0.89231718,  0.06731452, -0.50317298],
+#       [-2.99312525, -1.33157706, -0.55656801]])
+# sort across the columns by passing the axis number to the sort method
+arr.sort(1)
+arr
+#array([[-0.10486119,  0.44347918,  1.68804106],
+#       [-1.45703416, -0.26444576,  0.69635703],
+#       [-0.437229  , -0.3630979 , -0.19615279],
+#       [-0.89231718, -0.50317298,  0.06731452],
+#       [-2.99312525, -1.33157706, -0.55656801]])
+# a quick way to calculate the quantiles is to sort the array and then select the value at a particular rank
+large_arr = np.random.randn(1000)
+large_arr.sort()
+large_arr[int(0.05 * len(large_arr))] # 5% quantile (-1.6589863321488525 using the random sample of 1000 normal values)
+                  
+### Unique and Other Set Logic
+# array set operations include unique(x), intersect1d(x,y), union1d(x,y), in1d(x,y), setdiff1d(x,y), setxor1d(x,y)
+names = np.array(['Bob', 'Joe', 'Will', 'Bob', 'Will', 'Joe', 'Joe'])
+np.unique(names) #array(['Bob', 'Joe', 'Will'], dtype='<U4')
+ints = np.array([3, 3, 3, 2, 2, 1, 1, 4, 4])
+np.unique(ints) #array([1, 2, 3, 4])
+# the set function also forces it's elements to be unique
+sorted(set(names)) #['Bob', 'Joe', 'Will']
+# the in1d method tests whether the values in one array exist in the other
+values = np.array([6, 0, 0, 3, 2, 5, 6])
+np.in1d(values, [2, 3, 6]) #array([ True, False, False,  True,  True, False,  True])
+          
+## Linear Algebra
+
+x = np.array([[1., 2., 3.], [4., 5., 6.]])
+y = np.array([[6., 23.], [-1, 7], [8, 9]])
+x
+#array([[1., 2., 3.],
+#       [4., 5., 6.]])
+y
+#array([[ 6., 23.],
+#       [-1.,  7.],
+#       [ 8.,  9.]])
+# 1 x 6 + 2 x -1 + 3 x 8 = 28
+# the dot for matrix multiplication
+x.dot(y)
+#array([[ 28.,  64.],
+#       [ 67., 181.]])
+# the dot array method
+np.dot(x, y)
+#array([[ 28.,  64.],
+#       [ 67., 181.]])
+# the @ symbol performs matrix multiplication
+x @ np.ones(3)
+#array([ 6., 15.])
+# import the matrix inverse function and the QR decomposition function from the linalg module
+from numpy.linalg import inv, qr
+X = np.random.randn(5, 5)
+mat = X.T.dot(X)
+inv(mat)
+#array([[ 1.9353783 , -0.49472235, -0.51236337,  2.05790294, -2.63555533],
+#       [-0.49472235,  0.46840973,  0.04402124, -0.72054882,  0.96026777],
+#       [-0.51236337,  0.04402124,  0.32358634, -0.56020743,  0.5377636 ],
+#       [ 2.05790294, -0.72054882, -0.56020743,  2.91161382, -3.37873216],
+#       [-2.63555533,  0.96026777,  0.5377636 , -3.37873216,  4.74388758]])
+mat.dot(inv(mat))
+#array([[ 1.00000000e+00, -2.09617393e-17,  4.29050416e-17,
+#         3.83678817e-16,  7.99175033e-16],
+#       [-4.81969935e-16,  1.00000000e+00,  4.67587048e-17,
+#         1.18612370e-17,  3.00509589e-16],
+#       [ 7.06653787e-16, -4.22863519e-16,  1.00000000e+00,
+#         1.29201326e-16,  7.72713054e-17],
+#       [-1.01942303e-15,  1.01420896e-16, -2.91973620e-17,
+#         1.00000000e+00,  5.88232444e-16],
+#       [-6.47921204e-17, -1.80097135e-18, -5.79227643e-17,
+#         3.99795079e-16,  1.00000000e+00]])
+q, r = qr(mat)
+r
+#array([[-4.49737301, -0.94125756, -6.68834982, -1.09771538, -2.39558339],
+#       [ 0.        , -4.47094059, -3.25615637, -1.66667102,  0.11798257],
+#       [ 0.        ,  0.        , -4.1661302 , -2.24191308, -1.12493059],
+#       [ 0.        ,  0.        ,  0.        , -2.27389785, -1.7445739 ],
+#       [ 0.        ,  0.        ,  0.        ,  0.        ,  0.15416071]])
+                                                                                                                 
+
+
+## Pseudorandom Number Generation
+# obtain a 4x4 array of samples from the standard normal distribution
+samples = np.random.normal(size=(4, 4))
+samples
+
+# The numpy.random functions include seed, permutation, shuffle, rand, randint, randn, binomial, normal, beta, chisquare, gamma and uniform
+import timeit #timeit.py is in the same directory
+from random import normalvariate
+N = 1000000
+# numpy's random module is orders of magnitude faster than Python's built-in random module
+import time
+start_time=time.perf_counter()
+samples = [normalvariate(0, 1) for _ in range(N)]
+end_time=time.perf_counter()
+timer=end_time - start_time
+round(timer,2)
+
+start_time=time.perf_counter()
+np.random.normal(size=N)
+end_time=time.perf_counter()
+timer=end_time - start_time
+round(timer,2)
+
+# you can set NumPy's random number generation seed using the random.seed method
+np.random.seed(1234)
+# data generation functions in numpy.random use a global random seed. The RandomState avoids having a global seed value.
+rng = np.random.RandomState(1234)
+rng.randn(10)
+#array([ 0.47143516, -1.19097569,  1.43270697, -0.3126519 , -0.72058873,
+#        0.88716294,  0.85958841, -0.6365235 ,  0.01569637, -2.24268495])
+## Example: Random Walks
+# the simple random walk starts at zero and goes up one or down one with equal probability at each step
+import random
+position = 0
+walk = [position]
+steps = 1000
+# the randint function draws random integers from a given low to high range. Here it takes on values 0 or 1 with 50% chance each.
+for i in range(steps):
+    step = 1 if random.randint(0, 1) else -1
+    position += step
+    walk.append(position)
+
+# plot the random walk
+plt.figure()
+plt.plot(walk[:100])
+
+# an equivalent techique to generate a random walk is to draw flips of a coin and use the cumsum function to tally up the location at each step
+np.random.seed(12345)
+nsteps = 1000
+draws = np.random.randint(0, 2, size=nsteps)
+steps = np.where(draws > 0, 1, -1)
+walk = steps.cumsum()
+# we cam find the farthest away the process walked with the min and max functions
+walk.min()
+walk.max()
+# argmax returns the first index of the maximum value in a boolean array
+(np.abs(walk) >= 10).argmax()
+
+### Simulating Many Random Walks at Once
+# simulate 5000 random walks of 1000 steps each
+nwalks = 5000
+nsteps = 1000
+# when passed a two-dimensional array, numpy.random functions generate a two-dimensional array of draws
+draws = np.random.randint(0, 2, size=(nwalks, nsteps)) # 0 or 1
+steps = np.where(draws > 0, 1, -1)
+walks = steps.cumsum(1)
+# view the objects created
+draws
+#array([[0, 1, 1, ..., 1, 0, 0],
+#       [0, 1, 1, ..., 1, 1, 0],
+#       [1, 1, 1, ..., 0, 0, 0],
+#       ...,
+#       [1, 0, 1, ..., 0, 1, 1],
+#       [0, 1, 0, ..., 0, 1, 0],
+#       [1, 1, 1, ..., 0, 0, 1]])
+steps
+#array([[-1,  1,  1, ...,  1, -1, -1],
+#       [-1,  1,  1, ...,  1,  1, -1],
+#       [ 1,  1,  1, ..., -1, -1, -1],
+#       ...,
+#       [ 1, -1,  1, ..., -1,  1,  1],
+#       [-1,  1, -1, ..., -1,  1, -1],
+#       [ 1,  1,  1, ..., -1, -1,  1]])
+walks
+#array([[ -1,   0,   1, ...,  14,  13,  12],
+#       [ -1,   0,   1, ...,  44,  45,  44],
+#       [  1,   2,   3, ..., -18, -19, -20],
+#       ...,
+#       [  1,   0,   1, ...,   4,   5,   6],
+#       [ -1,   0,  -1, ..., -12, -11, -12],
+#       [  1,   2,   3, ...,  46,  45,  46]], dtype=int32)
+
+walks.max() #116
+walks.min() #-116
+# out of these walks, let's find the minimum crossing time to 30 or -30
+hits30 = (np.abs(walks) >= 30).any(1)
+# not all random walks reached beyond +30 or -30
+hits30 #array([False,  True,  True, ..., False, False,  True])                                                   
+hits30.sum() # Number that hit 30 or -30 (3401 in the first test)
+# using the boolean array we can select out the walks taht reached +/-30 and call the argmax across axis 1 to get the crossing times
+crossing_times = (np.abs(walks[hits30]) >= 30).argmax(1)
+crossing_times #array([311, 673, 349, ..., 591, 937, 763], dtype=int64)
+crossing_times.mean() #498.74
+# other probability distributions could be used for the random walk. Another possibility is to use a normal distribution with a mean of 0 and a stdev of .25
+steps = np.random.normal(loc=0, scale=0.25,
+                         size=(nwalks, nsteps))
+steps
+#array([[-0.05015418, -0.25338291,  0.4310268 , ...,  0.08039154,
+#        -0.3318606 ,  0.14001608],
+#       [ 0.07460316,  0.01934373, -0.03534487, ..., -0.00131745,
+#        -0.21087354, -0.07395815],
+#       [-0.08484035,  0.06263097,  0.36061029, ...,  0.11130218,
+#        -0.08953152,  0.32025783],
+#       ...,
+#       [ 0.55506066,  0.21128525, -0.25303571, ..., -0.21399762,
+#         0.25019564,  0.30824294],
+#       [ 0.06752211,  0.39087401,  0.10655129, ..., -0.22253245,
+#         0.05066762, -0.20347334],
+#       [ 0.03302648,  0.14489699,  0.05726634, ..., -0.09882506,
+#         0.02203751,  0.02237818]])
