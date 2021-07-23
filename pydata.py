@@ -1220,13 +1220,13 @@ z
 #        7.04985815],
 #       [7.06400028, 7.05692568, 7.04985815, ..., 7.04279774, 7.04985815,
 #        7.05692568]])
-import matplotlib.pyplot as plt
-plt.imshow(z, cmap=plt.cm.gray); plt.colorbar() 
+#import matplotlib.pyplot as plt
+#plt.imshow(z, cmap=plt.cm.gray); plt.colorbar() 
 #<matplotlib.image.AxesImage object at 0x00000166ED41BAC0>
 #<matplotlib.colorbar.Colorbar object at 0x00000166ED47B550>
-plt.title("Image plot of $\sqrt{x^2 + y^2}$ for a grid of values") 
-plt.draw()
-plt.close('all')
+#plt.title("Image plot of $\sqrt{x^2 + y^2}$ for a grid of values") 
+#plt.draw()
+#plt.close('all')
                                                                                                                    
 ### Expressing Conditional Logic as Array Operations
 
