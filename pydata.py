@@ -1697,7 +1697,7 @@ data = {'state': ['Ohio', 'Ohio', 'Ohio', 'Nevada', 'Nevada', 'Nevada'],
 frame = pd.DataFrame(data)
 #the head method selects only the first five rows
 frame.head()
-    #state  year  pop
+#    state  year  pop
 #0    Ohio  2000  1.5
 #1    Ohio  2001  1.7
 #2    Ohio  2002  3.6
