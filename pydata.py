@@ -1832,7 +1832,7 @@ frame3.T
 #         2001  2002  2000
 #Nevada   2.4   2.9   NaN
 #Ohio     1.7   3.6   1.5
-You can specify your own index to override the default way that the keys in the the inner dicts are combined and sorted
+# you can specify your own index to override the default way that the keys in the the inner dicts are combined and sorted
 pd.DataFrame(pop, index=[2001, 2002, 2003])
 #state Nevada  Ohio 
 #year
@@ -1840,7 +1840,7 @@ pd.DataFrame(pop, index=[2001, 2002, 2003])
 #2002     2.9   3.6   
 #2003     NaN   NaN  
 
-#Dicts of Series are similar to nested Dicts
+# Dicts of Series are similar to nested Dicts
 pdata = {'Ohio': frame3['Ohio'][:-1],
          'Nevada': frame3['Nevada'][:2]}
 pd.DataFrame(pdata)
