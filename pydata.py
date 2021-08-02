@@ -2866,3 +2866,189 @@ data.apply(pd.value_counts).fillna(0)
 #3  2.0  2.0  0.0
 #4  2.0  0.0  2.0
 #5  0.0  0.0  1.0
+
+
+import numpy as np
+import pandas as pd
+np.random.seed(12345)
+import matplotlib.pyplot as plt
+plt.rc('figure', figsize=(10, 6))
+np.set_printoptions(precision=4, suppress=True)
+
+df = pd.read_csv(examples_folder + 'ex1.csv')
+df
+#   a   b   c   d message
+#0  1   2   3   4   hello
+#1  5   6   7   8   world
+#2  9  10  11  12     foo
+
+pd.read_table(examples_folder + 'ex1.csv', sep=',')
+#   a   b   c   d message
+#0  1   2   3   4   hello
+#1  5   6   7   8   world
+#2  9  10  11  12     foo
+
+# reading it in without a header row
+pd.read_csv(examples_folder + 'ex2.csv', header=None)
+#   0   1   2   3      4
+#0  1   2   3   4  hello
+#1  5   6   7   8  world
+#2  9  10  11  12    foo
+pd.read_csv(examples_folder + 'ex2.csv', names=['a', 'b', 'c', 'd', 'message'])
+#   a   b   c   d message
+#0  1   2   3   4   hello
+#1  5   6   7   8   world
+#2  9  10  11  12     foo
+
+# creating a new column called message
+names = ['a', 'b', 'c', 'd', 'message']
+
+# making the an index from two existing columns
+parsed = pd.read_csv(examples_folder + 'csv_mindex.csv',
+                    index_col=['key1', 'key2'])
+parsed
+#           value1  value2
+#key1 key2
+#one  a          1       2
+     #b          3       4
+     #c          5       6
+     #d          7       8
+#two  a          9      10
+     #b         11      12
+     #c         13      14
+     #d         15      16
+#view the data as a list
+list(open(examples_folder + 'ex3.txt'))
+['            A         B         C\n', 'aaa -0.264438 -1.026059 -0.619500\n', 'bbb  0.927272  0.302904 -0.032399\n', 'ccc -0.264273 -0.386314 -0.217601\n', 'ddd -0.871858 -0.348382  1.100491\n']
+# pass a regular expression as a delimiter because the fileds are separated by a variable amount of whitespace
+result = pd.read_table(examples_folder + 'ex3.txt', sep='\s+')
+result
+#            A         B         C
+#aaa -0.264438 -1.026059 -0.619500
+#bbb  0.927272  0.302904 -0.032399
+#ccc -0.264273 -0.386314 -0.217601
+#ddd -0.871858 -0.348382  1.100491
+                             
+#skip rows 1, 3 and 4 on import
+pd.read_csv(examples_folder + 'ex4.csv', skiprows=[0, 2, 3])
+   #a   b   c   d message
+#0  1   2   3   4   hello
+#1  5   6   7   8   world
+#2  9  10  11  12     foo
+# showing an improrted DataFrame with several NaN values
+result = pd.read_csv(examples_folder + 'ex5.csv')
+result
+  #something  a   b     c   d message
+#0       one  1   2   3.0   4     NaN
+#1       two  5   6   NaN   8   world
+#2     three  9  10  11.0  12     foo
+pd.isnull(result)
+   #something      a      b      c      d  message
+#0      False  False  False  False  False     True
+#1      False  False  False   True  False    False
+#2      False  False  False  False  False    False
+result = pd.read_csv(examples_folder + 'ex5.csv', na_values=['NULL'])
+result
+#  something  a   b     c   d message
+#0       one  1   2   3.0   4     NaN
+#1       two  5   6   NaN   8   world
+#2     three  9  10  11.0  12     foo
+
+#Different NA sentinels can be specified for each column
+sentinels = {'message': ['foo', 'NA'], 'something': ['two']}
+pd.read_csv(examples_folder + 'ex5.csv', na_values=sentinels)
+#  something  a   b     c   d message
+#0       one  1   2   3.0   4     NaN
+#1       NaN  5   6   NaN   8   world
+#2     three  9  10  11.0  12     NaN
+### Reading Text Files in Pieces
+# display a maximum of ten rows
+pd.options.display.max_rows = 10
+
+result = pd.read_csv(examples_folder + 'ex6.csv')
+result
+# read in a max of 5 rows
+pd.read_csv(examples_folder + 'ex6.csv', nrows=5)
+
+### Writing Data to Text Format
+# import from csv
+data = pd.read_csv(examples_folder + 'ex5.csv')
+data
+  #something  a   b     c   d message
+#0       one  1   2   3.0   4     NaN
+#1       two  5   6   NaN   8   world
+#2     three  9  10  11.0  12     foo
+# export to csv
+data.to_csv(examples_folder + 'out.csv')
+# export with a pipe delimiter instead of a comma delimiter
+data.to_csv(sys.stdout, sep='|')
+#|something|a|b|c|d|message
+#0|one|1|2|3.0|4|
+#1|two|5|6||8|world
+#2|three|9|10|11.0|12|foo
+# represent missing as NULL even if it's an empty text string
+data.to_csv(sys.stdout, na_rep='NULL')
+#,something,a,b,c,d,message
+#0,one,1,2,3.0,4,NULL
+#1,two,5,6,NULL,8,world
+#2,three,9,10,11.0,12,foo
+# disable the output of the row and column labels
+data.to_csv(sys.stdout, index=False, header=False)
+#one,1,2,3.0,4,
+#two,5,6,,8,world
+#three,9,10,11.0,12,foo
+# write out a subset of columns in the order you want
+data.to_csv(sys.stdout, index=False, columns=['a', 'b', 'c'])
+#a,b,c
+#1,2,3.0
+#5,6,
+#9,10,11.0
+# create a Series of numbers with the index being a date
+dates = pd.date_range('1/1/2000', periods=7)
+ts = pd.Series(np.arange(7), index=dates)
+# the to_csv method works on Series as well as DataFrames
+ts.to_csv(examples_folder + 'tseries.csv')
+### Working with Delimited Formats
+
+import csv
+# open the text file with the open function and then pass the obect to the csv.reader() function
+f = open(examples_folder + 'ex7.csv')
+reader = csv.reader(f)
+for line in reader:
+     print(line)
+
+#['a', 'b', 'c']
+#['1', '2', '3']
+#['1', '2', '3']
+# read the data into a list of lines
+with open(examples_folder + 'ex7.csv') as f:
+    lines = list(csv.reader(f))
+
+# split the data into a header line and the data lines
+header, values = lines[0], lines[1:]
+# transform the lists into a dictionary of data columns using a dictionary comprehension and the zip function
+data_dict = {h: v for h, v in zip(header, zip(*values))}
+data_dict
+#{'a': ('1', '1'), 'b': ('2', '2'), 'c': ('3', '3')}
+
+### Reading Microsoft Excel Files
+# import a sheet in an Excel file
+xlsx = pd.ExcelFile(examples_folder + 'ex1.xlsx')
+pd.read_excel(xlsx, 'Sheet1')
+#   Unnamed: 0  a   b   c   d message
+#0           0  1   2   3   4   hello
+#1           1  5   6   7   8   world
+#2           2  9  10  11  12     foo
+frame = pd.read_excel(examples_folder + 'ex1.xlsx', 'Sheet1')
+frame
+#   Unnamed: 0  a   b   c   d message
+#0           0  1   2   3   4   hello
+#1           1  5   6   7   8   world
+#2           2  9  10  11  12     foo
+# create the ExcelWirter then write to it using the to_excel method on a pandas object
+writer = pd.ExcelWriter(examples_folder + 'ex2.xlsx')
+frame.to_excel(writer, 'Sheet1')
+writer.save()
+# a simpler way to export that avoids the ExcelWriter is to pass the file path to the to_excel method
+frame.to_excel(examples_folder + 'ex2.xlsx')
+
