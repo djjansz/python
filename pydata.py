@@ -1,6 +1,15 @@
 # Python for Data Analysis
+import bisect
+import datetime
+import itertools
 import numpy as np
 import os
+import pandas as pd
+import pandas_datareader.data as web
+import random
+import re
+import sys
+import time
 # create a python dictionary with 10 random numbers, indexed from 0 to 9
 data={i: np.random.randn() for i in range(10)}
 data
@@ -1888,3 +1897,972 @@ frame3.columns
 dup_labels = pd.Index(['foo', 'foo', 'bar', 'bar'])
 dup_labels
 #Index(['foo', 'foo', 'bar', 'bar'], dtype='object')
+
+# create a Pandas series with an index
+obj = pd.Series([4.5, 7.2, -5.3, 3.6], index=['d', 'b', 'a', 'c'])
+obj
+#d    4.5
+#b    7.2
+#a   -5.3
+#c    3.6
+#dtype: float64
+# reindex rearranges the data according to the new index and inserting missing values where data is not present
+obj2 = obj.reindex(['a', 'b', 'c', 'd', 'e'])
+obj2
+#a   -5.3
+#b    7.2
+#c    3.6
+#d    4.5
+#e    NaN
+#dtype: float64
+# you can do some interpolation or filling in missing values when reindexing
+obj3 = pd.Series(['blue', 'purple', 'yellow'], index=[0, 2, 4])
+obj3
+#0      blue
+#2    purple
+#4    yellow
+#dtype: object
+# the object previously had three elements and now has six elements with the new index so the values repeat
+obj3.reindex(range(6), method='ffill')
+#0      blue
+#1      blue
+#2    purple
+#3    purple
+#4    yellow
+#5    yellow
+#dtype: object
+# reindexing a dataframe means to change the ordering of the rows
+frame = pd.DataFrame(np.arange(9).reshape((3, 3)),
+                      index=['a', 'c', 'd'],
+                     columns=['Ohio', 'Texas', 'California'])
+frame
+#   Ohio  Texas  California
+#a     0      1           2
+#c     3      4           5
+#d     6      7           8
+# missing values are inserted at row b because no elements were provided in the initial dataframe definition for row b
+frame2 = frame.reindex(['a', 'b', 'c', 'd'])
+frame2
+#   Ohio  Texas  California
+#a   0.0    1.0         2.0
+#b   NaN    NaN         NaN
+#c   3.0    4.0         5.0
+#d   6.0    7.0         8.0                               
+# columns can be renamed with the reindex function
+states = ['Texas', 'Utah', 'California']
+frame.reindex(columns=states)
+#   Texas  Utah  California
+#a      1   NaN           2
+#c      4   NaN           5
+#d      7   NaN           8
+
+# creating a series and then dropping 
+obj = pd.Series(np.arange(5.), index=['a', 'b', 'c', 'd', 'e'])
+obj
+#a    0.0
+#b    1.0
+#c    2.0
+#d    3.0
+#e    4.0
+#dtype: float64
+new_obj = obj.drop('c')
+new_obj
+#a    0.0
+#b    1.0
+#d    3.0
+#e    4.0
+#dtype: float64
+obj.drop(['d', 'c'])
+#a    0.0
+#b    1.0
+#e    4.0
+#dtype: float64
+# create a sample dataframe using the reshape method on a numpy arraw and create labels for the rows and colums
+data = pd.DataFrame(np.arange(16).reshape((4, 4)),
+                     index=['Ohio', 'Colorado', 'Utah', 'New York'],
+                     columns=['one', 'two', 'three', 'four'])
+data
+#          one  two  three  four
+#Ohio        0    1      2     3
+#Colorado    4    5      6     7
+#Utah        8    9     10    11
+#New York   12   13     14    15
+# the drop function will drop rows when passed the inxdex name
+data.drop(['Colorado', 'Ohio'])
+          #one  two  three  four
+#Utah        8    9     10    11
+#New York   12   13     14    15
+#use the axis=1 or axis='columns' argument to drop columns       
+data.drop('two', axis=1)
+#          one  three  four
+#Ohio        0      2     3
+#Colorado    4      6     7
+#Utah        8     10    11
+#New York   12     14    15
+data.drop(['two', 'four'], axis='columns')
+#          one  three
+#Ohio        0      2
+#Colorado    4      6
+#Utah        8     10
+#New York   12     14
+# you can permanently modify an object with the inplace=True agrument
+obj.drop('c', inplace=True)
+obj
+#a    0.0
+#b    1.0
+#d    3.0
+#e    4.0
+#dtype: float64
+
+### Indexing, Selection, and Filtering
+# Pandas series indexing works similar to NumPy's indexing except that you can use labels instead of integers to represent the index
+obj = pd.Series(np.arange(4.), index=['a', 'b', 'c', 'd'])
+obj
+#a    0.0
+#b    1.0
+#c    2.0
+#d    3.0
+#dtype: float64
+obj['b']
+#1.0
+obj[1]
+#1.0
+obj[2:4]
+#c    2.0
+#d    3.0
+#dtype: float64
+obj[['b', 'a', 'd']]
+#b    1.0
+#a    0.0
+#d    3.0
+#dtype: float64
+obj[[1, 3]]
+#b    1.0
+#d    3.0
+#dtype: float64
+obj[obj < 2]
+#a    0.0
+#b    1.0
+#dtype: float64
+# slicing a Pandas series with labels behaves differently than the usual Python slicing
+obj['b':'c']
+#b    1.0
+#c    2.0
+#dtype: float64
+# setting a slice equal to a value modifies the corresponding section of the Series inplace
+obj['b':'c'] = 5
+obj
+a    0.0
+b    5.0
+c    5.0
+d    3.0
+#dtype: float64
+# we can also slice a Pandas dataframe using the index labels
+data = pd.DataFrame(np.arange(16).reshape((4, 4)),
+                     index=['Ohio', 'Colorado', 'Utah', 'New York'],
+                     columns=['one', 'two', 'three', 'four'])
+data
+#          one  two  three  four
+#Ohio        0    1      2     3
+#Colorado    4    5      6     7
+#Utah        8    9     10    11
+#New York   12   13     14    15
+data['two']
+#Ohio         1
+#Colorado     5
+#Utah         9
+#New York    13
+#Name: two, dtype: int32
+data[['three', 'one']]
+#          three  one
+#Ohio          2    0
+#Colorado      6    4
+#Utah         10    8
+#New York     14   12
+# takes up to the second row
+data[:2]
+#         one  two  three  four
+#Ohio        0    1      2     3
+#Colorado    4    5      6     7
+# filter the dataframe where the column named three is greater than 5
+data[data['three'] > 5]
+#          one  two  three  four
+#Colorado    4    5      6     7
+#Utah        8    9     10    11
+#New York   12   13     14    15
+#the following comparison makes a boolean Pandas DataFrame
+data < 5
+#            one    two  three   four
+#Ohio       True   True   True   True
+#Colorado   True  False  False  False
+#Utah      False  False  False  False
+#New York  False  False  False  False
+# setting the DataFrame equal to a scaler for all columns using the inner boolean DataFrame
+data[data < 5] = 0
+data
+#          one  two  three  four
+#Ohio        0    0      0     0
+#Colorado    0    5      6     7
+#Utah        8    9     10    11
+#New York   12   13     14    15
+
+# selecting row Colorado columns two and three and transpose them
+data.loc['Colorado', ['two', 'three']]
+#two      5
+#three    6
+#Name: Colorado, dtype: int32
+# select row 3, columns 4, 1 and 2 and transpose them
+data.iloc[2, [3, 0, 1]]
+#four    11
+#one      8
+#two      9
+#Name: Utah, dtype: int32
+# select only the thrid row of the Pandas DataFrame with the indexing operator iloc
+data.iloc[2]
+#one       8
+#two       9
+#three    10
+#four     11
+#Name: Utah, dtype: int32
+# select rows 2 and 3, columns 4, 1 and 2
+data.iloc[[1, 2], [3, 0, 1]]
+#          four  one  two
+#Colorado     7    0    5
+#Utah        11    8    9
+# Both iloc and loc work with slices, single labels, or lists of labels
+data.loc[:'Utah', 'two']
+#Ohio        0
+#Colorado    5
+#Utah        9
+#Name: two, dtype: int32
+# select all rows and all columns up to column 3
+data.iloc[:, :3]
+#          one  two  three
+#Ohio        0    0      0
+#Colorado    0    5      6
+#Utah        8    9     10
+#New York   12   13     14
+# add the filter that column three of the DataFrame has to be greater than 5
+data.iloc[:, :3][data.three > 5]
+#          one  two  three
+#Colorado    0    5      6
+#Utah        8    9     10
+#New York   12   13     14
+                          
+### Integer Indexes
+#create a series with a non-integer based index
+ser2 = pd.Series(np.arange(3.), index=['a', 'b', 'c'])
+ser2
+#a    0.0
+#b    1.0
+#c    2.0
+#dtype: float64
+# one position in the opposite direction of zero
+ser2[-1]
+2.0
+# up to row 2
+ser2.iloc[:2]
+#a    0.0
+#b    1.0
+#dtype: float64
+#up to row 2
+ser2[:2]
+#a    0.0
+#b    1.0
+### Arithmetic and Data Alignment
+s1 = pd.Series([7.3, -2.5, 3.4, 1.5], index=['a', 'c', 'd', 'e'])
+s2 = pd.Series([-2.1, 3.6, -1.5, 4, 3.1],index=['a', 'c', 'e', 'f', 'g'])
+s1
+#a    7.3
+#c   -2.5
+#d    3.4
+#e    1.5
+#dtype: float64
+s2
+#a   -2.1
+#c    3.6
+#e   -1.5
+#f    4.0
+#g    3.1
+#dtype: float64
+# it's like a full outer join on the index labels where any indexes not in both will be missing
+s1 + s2
+#a    5.2
+#c    1.1
+#d    NaN
+#e    0.0
+#f    NaN
+#g    NaN
+#dtype: float64
+# create a 3x3 pandas DataFrame with column names b, c and d, and row names Ohio, Texas and Colorado
+df1 = pd.DataFrame(np.arange(9.).reshape((3, 3)), columns=list('bcd'),
+          index=['Ohio', 'Texas', 'Colorado'])
+# create a 4x3 pandas DataFrame with column names b, d and e, and row names Utah, Ohio, Texas and Oregon
+df2 = pd.DataFrame(np.arange(12.).reshape((4, 3)), columns=list('bde'),
+          index=['Utah', 'Ohio', 'Texas', 'Oregon'])
+df1
+#            b    c    d
+#Ohio      0.0  1.0  2.0
+#Texas     3.0  4.0  5.0
+#Colorado  6.0  7.0  8.0
+
+df2
+#          b     d     e
+#Utah    0.0   1.0   2.0
+#Ohio    3.0   4.0   5.0
+#Texas   6.0   7.0   8.0
+#Oregon  9.0  10.0  11.0
+
+# The output has all rows and all columns from both, however the only ones that are not NaN are the rows and columns that exist in both DataFrames
+df1 + df2
+#            b   c     d   e
+#Colorado  NaN NaN   NaN NaN
+#Ohio      3.0 NaN   6.0 NaN
+#Oregon    NaN NaN   NaN NaN
+#Texas     9.0 NaN  12.0 NaN
+#Utah      NaN NaN   NaN NaN
+
+# adding or subtracting DataFrames with no rows or columns in common will produce a DataFrame containing all nulls
+df1 = pd.DataFrame({'A': [1, 2]})
+df2 = pd.DataFrame({'B': [3, 4]})
+df1
+#   A
+#0  1
+#1  2
+df2
+#   B
+#0  3
+#1  4
+df1 - df2
+#    A   B
+#0 NaN NaN
+#1 NaN NaN
+
+#### Arithmetic methods with fill values
+
+# filling in with a zeros when an axis label is in one object but not the other
+df1 = pd.DataFrame(np.arange(12.).reshape((3, 4)),
+                  columns=list('abcd'))
+df2 = pd.DataFrame(np.arange(20.).reshape((4, 5)),
+                  columns=list('abcde'))
+df2.loc[1, 'b'] = np.nan
+df1
+#     a    b     c     d
+#0  0.0  1.0   2.0   3.0
+#1  4.0  5.0   6.0   7.0
+#2  8.0  9.0  10.0  11.0
+df2
+#      a     b     c     d     e
+#0   0.0   1.0   2.0   3.0   4.0
+#1   5.0   NaN   7.0   8.0   9.0
+#2  10.0  11.0  12.0  13.0  14.0
+#3  15.0  16.0  17.0  18.0  19.0
+
+df1 + df2
+#      a     b     c     d   e
+#0   0.0   2.0   4.0   6.0 NaN
+#1   9.0   NaN  13.0  15.0 NaN
+#2  18.0  20.0  22.0  24.0 NaN
+#3   NaN   NaN   NaN   NaN NaN
+#using the add method on df1 and an argument to fill_value in order to fill in the NaN's with zeros
+df1.add(df2, fill_value=0)
+#      a     b     c     d     e
+#0   0.0   2.0   4.0   6.0   4.0
+#1   9.0   5.0  13.0  15.0   9.0
+#2  18.0  20.0  22.0  24.0  14.0
+#3  15.0  16.0  17.0  18.0  19.0
+
+# flexible arithmetic methods for pandas DataFrames
+1 / df1
+       #a         b         c         d
+#0    inf  1.000000  0.500000  0.333333
+#1  0.250  0.200000  0.166667  0.142857
+#2  0.125  0.111111  0.100000  0.090909
+# there is also radd, rsub, rfloordlv, rmul, and rpow
+df1.rdiv(1)
+#       a         b         c         d
+#0    inf  1.000000  0.500000  0.333333
+#1  0.250  0.200000  0.166667  0.142857
+#2  0.125  0.111111  0.100000  0.090909
+# when reindexing a DataFrame you can specify fill values. Here df1 does not have column e so it is all zero
+df1.reindex(columns=df2.columns, fill_value=0)
+#     a    b     c     d  e
+#0  0.0  1.0   2.0   3.0  0
+#1  4.0  5.0   6.0   7.0  0
+#2  8.0  9.0  10.0  11.0  0
+
+#### Operations between DataFrame and Series
+
+arr = np.arange(12.).reshape((3, 4))
+arr
+#array([[ 0.,  1.,  2.,  3.],
+#       [ 4.,  5.,  6.,  7.],
+#       [ 8.,  9., 10., 11.]])
+arr[0]
+#array([0., 1., 2., 3.])
+# the first row is subtracted from all rows and this is called broadcasting
+arr - arr[0]
+#array([[0., 0., 0., 0.],
+#       [4., 4., 4., 4.],
+#       [8., 8., 8., 8.]])
+
+frame = pd.DataFrame(np.arange(12.).reshape((4, 3)),
+                 columns=list('bde'),
+                 index=['Utah', 'Ohio', 'Texas', 'Oregon'])
+series = frame.iloc[0]
+series
+#b    0.0
+#d    1.0
+#e    2.0
+#Name: Utah, dtype: float64
+frame
+#          b     d     e
+#Utah    0.0   1.0   2.0
+#Ohio    3.0   4.0   5.0
+#Texas   6.0   7.0   8.0
+#Oregon  9.0  10.0  11.0
+# the series is broadcasted and subtracted from all rows
+frame - series
+#          b    d    e
+#Utah    0.0  0.0  0.0
+#Ohio    3.0  3.0  3.0
+#Texas   6.0  6.0  6.0
+#Oregon  9.0  9.0  9.0
+                     
+# if an index is not found in either the DataFrames or the Series index then the objects will be reindexed upon the union
+series2 = pd.Series(range(3), index=['b', 'e', 'f'])
+frame + series2
+#          b   d     e   f
+#Utah    0.0 NaN   3.0 NaN
+#Ohio    3.0 NaN   6.0 NaN
+#Texas   6.0 NaN   9.0 NaN
+#Oregon  9.0 NaN  12.0 NaN
+
+# broadcasting over columns instead of rows requires the use of the sub arithmetic method
+series3 = frame['d']
+series3
+#Utah       1.0
+#Ohio       4.0
+#Texas      7.0
+#Oregon    10.0
+#Name: d, dtype: float64
+frame
+#          b     d     e
+#Utah    0.0   1.0   2.0
+#Ohio    3.0   4.0   5.0
+#Texas   6.0   7.0   8.0
+#Oregon  9.0  10.0  11.0
+frame.sub(series3, axis='index')
+#          b    d    e
+#Utah   -1.0  0.0  1.0
+#Ohio   -1.0  0.0  1.0
+#Texas  -1.0  0.0  1.0
+#Oregon -1.0  0.0  1.0
+
+### Function Application and Mapping
+# you can use numpy functions on DataFrames
+frame = pd.DataFrame(np.random.randn(4, 3), columns=list('bde'),
+                    index=['Utah', 'Ohio', 'Texas', 'Oregon'])
+frame
+#               b         d         e
+#Utah   -1.307035  0.499506  1.079316
+#Ohio    1.152482 -1.030454 -0.216801
+#Texas   0.617215  0.778854  0.850563
+#Oregon  0.239042  0.879029 -1.370445
+np.abs(frame)
+#               b         d         e
+#Utah    1.307035  0.499506  1.079316
+#Ohio    1.152482  1.030454  0.216801
+#Texas   0.617215  0.778854  0.850563
+#Oregon  0.239042  0.879029  1.370445
+# applying a function on on a one dimensional array (a row or a column) requires the use of the apply function
+f = lambda x: x.max() - x.min()
+frame.apply(f)
+#b    2.459517
+#d    1.909483
+#e    2.449761
+#dtype: float64
+frame.apply(f, axis='columns')
+#Utah      2.386351
+#Ohio      2.182937
+#Texas     0.233348
+#Oregon    2.249474
+#dtype: float64
+# the function passed to lapply doesn't have to return a scalar value, it can also return a series
+def f(x):
+      return pd.Series([x.min(), x.max()], index=['min', 'max'])
+
+frame.apply(f)
+#            b         d         e
+#min -1.307035 -1.030454 -1.370445
+#max  1.152482  0.879029  1.079316
+# element-wise Python functions can be used as well with the applymap method
+format = lambda x: '%.2f' % x
+frame.applymap(format)
+#            b      d      e
+#Utah    -1.31   0.50   1.08
+#Ohio     1.15  -1.03  -0.22
+#Texas    0.62   0.78   0.85
+#Oregon   0.24   0.88  -1.37
+# the series has a map method for applying an element-wise function
+frame['e'].map(format)
+#Utah       1.08
+#Ohio      -0.22
+#Texas      0.85
+#Oregon    -1.37
+#Name: e, dtype: object
+### Sorting and Ranking
+# to sort by lexicographical order use the sort_index method which returns a new sorted object
+obj = pd.Series(range(4), index=['d', 'a', 'b', 'c'])
+obj
+obj.sort_index()
+
+# with a DataFrame you can sort by either axis
+frame = pd.DataFrame(np.arange(8).reshape((2, 4)),
+                     index=['three', 'one'],
+                     columns=['d', 'a', 'b', 'c'])
+frame
+#       d  a  b  c
+#three  0  1  2  3
+#one    4  5  6  7
+# sorting by the row index
+frame.sort_index()
+#      #d  a  b  c
+#one    4  5  6  7
+#three  0  1  2  3
+# sorting by the column index
+frame.sort_index(axis=1)
+#       a  b  c  d
+#three  1  2  3  0
+#one    5  6  7  4
+# the default is to sort acsending but you can sort descending by setting the ascending argument equal to False
+frame.sort_index(axis=1, ascending=False)
+#       d  c  b  a
+#three  0  3  2  1
+#one    4  7  6  5
+# to sort a series by its values use the sort_values method
+obj = pd.Series([4, 7, -3, 2])
+obj.sort_values()
+#2   -3
+#3    2
+#0    4
+#1    7
+#dtype: int64
+# Missing values are sorted as the largest values
+obj = pd.Series([4, np.nan, 7, np.nan, -3, 2])
+obj.sort_values()
+#4   -3.0
+#5    2.0
+#0    4.0
+#2    7.0
+#1    NaN
+#3    NaN
+#dtype: float64
+# dataframes can be sorted by specific columns
+frame = pd.DataFrame({'b': [4, 7, -3, 2], 'a': [0, 1, 0, 1]})
+frame
+#   b  a
+#0  4  0
+#1  7  1
+#2 -3  0
+#3  2  1
+
+# using column b as the sort key
+frame.sort_values(by='b')
+#   b  a
+#2 -3  0
+#3  2  1
+#0  4  0
+#1  7  1
+# using columns a and then b as teh sort keys
+frame.sort_values(by=['a', 'b'])
+#   b  a
+#2 -3  0
+#0  4  0
+#3  2  1
+#1  7  1
+
+# the rank method shows an elements rank
+obj = pd.Series([7, -5, 7, 4, 2, 0, 4])
+obj
+#0    7
+#1   -5
+#2    7
+#3    4
+#4    2
+#5    0
+#6    4
+#dtype: int64
+# ties are assigned a mean rank
+obj.rank()
+#0    6.5
+#1    1.0
+#2    6.5
+#3    4.5
+#4    3.0
+#5    2.0
+#6    4.5
+#dtype: float64
+# you can override the mean ranking of ties with the average, min, max, first or dense tie breaking method argument
+obj.rank(method='first')
+#0    6.0
+#1    1.0
+#2    7.0
+#3    4.0
+#4    3.0
+#5    2.0
+#6    5.0
+#dtype: float64
+# assigning tie values the maximum rank in the group instead of assigning the mean rank or by the order in which they appear and rank in desceding order
+obj.rank(ascending=False, method='max')
+#0    2.0
+#1    7.0
+#2    2.0
+#3    4.0
+#4    5.0
+#5    6.0
+#6    4.0
+#dtype: float64
+# with a DataFrame you can compute the rank over rows or columns
+frame = pd.DataFrame({'b': [4.3, 7, -3, 2], 'a': [0, 1, 0, 1],
+                      'c': [-2, 5, 8, -2.5]})
+frame
+#     b  a    c
+#0  4.3  0 -2.0
+#1  7.0  1  5.0
+#2 -3.0  0  8.0
+#3  2.0  1 -2.5
+# ranking a columns elements by row
+frame.rank()
+#     b    a    c
+#0  3.0  1.5  2.0
+#1  4.0  3.5  3.0
+#2  1.0  1.5  4.0
+#3  2.0  3.5  1.0
+# ranking a rows elements by column
+frame.rank(axis='columns')
+#     b    a    c
+#0  3.0  2.0  1.0
+#1  3.0  1.0  2.0
+#2  1.0  2.0  3.0
+#3  3.0  2.0  1.0
+
+### Axis Indexes with Duplicate Labels
+# create a pandas Series with duplicate index values
+obj = pd.Series(range(5), index=['a', 'a', 'b', 'b', 'c'])
+obj
+#a    0
+#a    1
+#b    2
+#b    3
+#c    4
+#dtype: int64
+# the is_unique property can tell you whehter the lables are unique or not
+obj.index.is_unique
+#False
+#  an index with multiple entries returns a Series
+obj['a']
+#a    0
+#a    1
+#dtype: int64
+# any unique index values will return a scalar value
+obj['c']
+#4
+#cerate a pandas DataFrame with duplicate index values
+df = pd.DataFrame(np.random.randn(4, 3), index=['a', 'a', 'b', 'b'])
+df
+#          0         1         2
+#a -0.543992 -0.790871  0.204140
+#a -0.536604  0.852404  1.115794
+#b  0.803535  1.985697 -0.751093
+#b -0.772483 -0.039922 -0.216289
+# the loc method on a duplicate index label returns another DataFrame instead of a Series
+df.loc['b']
+#          0         1         2
+#b  0.803535  1.985697 -0.751093
+#b -0.772483 -0.039922 -0.216289
+   
+## Summarizing and Computing Descriptive Statistics
+
+df = pd.DataFrame([[1.4, np.nan], [7.1, -4.5],
+                    [np.nan, np.nan], [0.75, -1.3]],
+                   index=['a', 'b', 'c', 'd'],
+                   columns=['one', 'two'])
+df
+#    one  two
+#a  1.40  NaN
+#b  7.10 -4.5
+#c   NaN  NaN
+#d  0.75 -1.3
+# the mean and sum are considered reduction methods and by default they sum across rows
+df.sum()
+#one    9.25
+#two   -5.80
+#dtype: float64
+# passing the axis='columns' or axis=1 sums across the columns instead of rows
+df.sum(axis='columns')
+#a    1.40
+#b    2.60
+#c    0.00
+#d   -0.55
+#dtype: float64
+# skipna, level and axis are options for reduction methods
+df.mean(axis='columns', skipna=False)
+#a      NaN
+#b    1.300
+#c      NaN
+#d   -0.275
+#dtype: float64
+# the idxmax method return the index value where the maximum values are attained
+df.idxmax()
+#one    b
+#two    d
+#dtype: object
+# cumsum is an accumulation method that accumulates down the rows by default
+df.cumsum()
+#    one  two
+#a  1.40  NaN
+#b  8.50 -4.5
+#c   NaN  NaN
+#d  9.25 -5.8
+# describe is neither a reduction or an accumulation as it outputs many summary statistics in one shot
+df.describe()
+#            one       two
+#count  3.000000  2.000000
+#mean   3.083333 -2.900000
+#std    3.493685  2.262742
+#min    0.750000 -4.500000
+#25%    1.075000 -3.700000
+#50%    1.400000 -2.900000
+#75%    4.250000 -2.100000
+#max    7.100000 -1.300000
+df.quantile()
+#one    1.4
+#two   -2.9
+#Name: 0.5, dtype: float64
+df.quantile(axis=1)
+#a    1.400
+#b    1.300
+#c      NaN
+#d   -0.275
+#Name: 0.5, dtype: float64
+df.skew()
+#one    1.664846
+#two         NaN
+#dtype: float64
+df.mad()
+#one    2.677778
+#two    1.600000
+#dtype: float64
+df.prod()
+#one    7.455
+#two    5.850
+#dtype: float64
+df.std()
+#one    3.493685
+#two    2.262742
+#dtype: float64
+df.kurt()
+#one   NaN
+#two   NaN
+#dtype: float64
+df.diff()
+#   one  two
+#a  NaN  NaN
+#b  5.7  NaN
+#c  NaN  NaN
+#d  NaN  NaN
+df.cumprod()
+#     one   two
+#a  1.400   NaN
+#b  9.940 -4.50
+#c    NaN   NaN
+#d  7.455  5.85
+df.cummin()
+#    one   two
+#a  1.40  NaN
+#b  1.40 -4.5
+#c   NaN  NaN
+#d  0.75 -4.5
+df.pct_change()
+#        one       two
+#a       NaN       NaN
+#b  4.071429       NaN
+#c  0.000000  0.000000
+#d -0.894366 -0.711111
+       
+obj = pd.Series(['a', 'a', 'b', 'c'] * 4)
+obj.describe()
+
+### Correlation and Covariance
+
+#conda install pandas-datareader
+
+price = pd.read_pickle('C:/Users/Dave/Documents/Machine Learning/pydata-book/examples/yahoo_price.pkl')
+volume = pd.read_pickle('C:/Users/Dave/Documents/Machine Learning/pydata-book/examples//yahoo_volume.pkl')
+
+import pandas_datareader.data as web
+all_data = {ticker: web.get_data_yahoo(ticker)
+            for ticker in ['AAPL', 'IBM', 'MSFT', 'GOOG']}
+
+price = pd.DataFrame({ticker: data['Adj Close']
+                     for ticker, data in all_data.items()})
+volume = pd.DataFrame({ticker: data['Volume']
+                      for ticker, data in all_data.items()})
+price
+#                  AAPL         IBM        MSFT         GOOG
+#Date
+#2016-08-03   24.706854  128.648148   52.484077   773.179993
+#2016-08-04   24.859488  129.352783   52.871002   771.609985
+#2016-08-05   25.237530  130.914124   53.396114   782.219971
+#2016-08-08   25.446508  130.865692   53.488247   781.760010
+#2016-08-09   25.549829  130.647629   53.617218   784.260010
+#...                ...         ...         ...          ...
+#2021-07-26  148.990005  142.770004  289.049988  2792.889893
+#2021-07-27  146.770004  142.750000  286.540009  2735.929932
+#2021-07-28  144.979996  141.770004  286.220001  2727.629883
+#2021-07-29  145.639999  141.929993  286.500000  2730.810059
+#2021-07-30  145.860001  140.960007  284.910004  2704.419922
+#[1257 rows x 4 columns]
+volume
+#                   AAPL        IBM        MSFT     GOOG
+#Date
+#2016-08-03  120810400.0  2861700.0  22075600.0  1287400
+#2016-08-04  109634800.0  2489100.0  26587700.0  1140300
+#2016-08-05  162213600.0  3812400.0  29335200.0  1801200
+#2016-08-08  112148800.0  3039300.0  19473500.0  1107900
+#2016-08-09  105260800.0  2737500.0  16920700.0  1318900
+#...                 ...        ...         ...      ...
+#2021-07-26   72434100.0  4246300.0  23176100.0  1152600
+#2021-07-27  104818600.0  3137000.0  33604100.0  2108200
+#2021-07-28  118931200.0  2543800.0  33566900.0  2734400
+#2021-07-29   56699500.0  2670900.0  18168300.0   964200
+#2021-07-30   70382000.0  3534600.0  20940900.0  1196600
+#[1257 rows x 4 columns]
+# compute the daily perecnt change of price
+returns = price.pct_change()
+returns.tail()
+#                AAPL       IBM      MSFT      GOOG
+#Date
+#2021-07-26  0.002895  0.010118 -0.002140  0.013268
+#2021-07-27 -0.014900 -0.000140 -0.008684 -0.020395
+#2021-07-28 -0.012196 -0.006865 -0.001117 -0.003034
+#2021-07-29  0.004552  0.001129  0.000978  0.001166
+#2021-07-30  0.001511 -0.006834 -0.005550 -0.009664
+# calculate the correlation of the overlapping non-NA values aligned-by-index in two Series - the MSFT price series and the IBM price series
+returns['MSFT'].corr(returns['IBM'])
+#0.51787031906612
+# calculate the covariance of the overlapping non-NA values aligned-by-index in two Series - the MSFT price series and the IBM price series
+returns['MSFT'].cov(returns['IBM'])
+#0.00014544595052921167
+# since MSFT is a valid Python attribute we can write it without square brackets
+returns.MSFT.corr(returns.IBM)
+#0.51787031906612
+# returns a full correlation matrix
+returns.corr()
+#          AAPL       IBM      MSFT      GOOG
+#AAPL  1.000000  0.440912  0.735551  0.662164
+#IBM   0.440912  1.000000  0.517870  0.484836
+#MSFT  0.735551  0.517870  1.000000  0.776040
+#GOOG  0.662164  0.484836  0.776040  1.000000
+# returns a full covariance matrix
+returns.cov()
+#          AAPL       IBM      MSFT      GOOG
+#AAPL  0.000362  0.000137  0.000240  0.000212
+#IBM   0.000137  0.000268  0.000145  0.000133
+#MSFT  0.000240  0.000145  0.000294  0.000224
+#GOOG  0.000212  0.000133  0.000224  0.000283
+# the corrwith method computes pairwise correlations between a DataFrames columns with another Series or DataFrame
+returns.corrwith(returns.IBM)
+#AAPL    0.440912
+#IBM     1.000000
+#MSFT    0.517870
+#GOOG    0.484836
+#dtype: float64
+# T correleation of percent changes with volume is negative because there is usually more trading when the price is falling
+returns.corrwith(volume)
+#AAPL   -0.063032
+#IBM    -0.102614
+#MSFT   -0.056159
+#GOOG   -0.118075
+#dtype: float64
+### Unique Values, Value Counts, and Membership
+obj = pd.Series(['c', 'a', 'd', 'a', 'a', 'b', 'b', 'c', 'c'])
+obj
+#0    c
+#1    a
+#2    d
+#3    a
+#4    a
+#5    b
+#6    b
+#7    c
+#8    c
+# show the unordered distinct values in a Seires with the unique function
+uniques = obj.unique()
+uniques
+#array(['c', 'a', 'd', 'b'], dtype=object)
+# show the unique values in sorted order
+unique_sorted = obj.unique().sort()
+unique_sorted
+# the value_counts function computes a series containing value frequencies
+obj.value_counts()
+#a    3
+#c    3
+#b    2
+#d    1
+#dtype: int64
+# do not sort the frequencies by descending order
+pd.value_counts(obj.values, sort=False)
+#d    1
+#b    2
+#c    3
+#a    3
+#dtype: int64
+dtype: object
+# the isin function perfroms a vectorized set membership check
+mask = obj.isin(['b', 'c'])
+mask
+#0     True
+#1    False
+#2    False
+#3    False
+#4    False
+#5     True
+#6     True
+#7     True
+#8     True
+#dtype: bool
+# the Series of True/False values can be used to subset the Series further
+obj[mask]
+#0    c
+#5    b
+#6    b
+#7    c
+#8    c
+dtype: object
+# the get_indexer method gets the index of values from one array to another
+to_match = pd.Series(['c', 'a', 'b', 'b', 'c', 'a'])
+unique_vals = pd.Series(['c', 'b', 'a'])
+pd.Index(unique_vals).get_indexer(to_match)
+#array([0, 2, 1, 1, 0, 2], dtype=int64)
+# in some cases you may want to create a histogram based on multiple related columns in a DataFrame
+data = pd.DataFrame({'Qu1': [1, 3, 4, 3, 4],
+                     'Qu2': [2, 3, 1, 2, 3],
+                     'Qu3': [1, 5, 2, 4, 4]})
+# note that only column Qu3 contains the highest number which is 5
+data
+#   Qu1  Qu2  Qu3
+#0    1    2    1
+#1    3    3    5
+#2    4    1    2
+#3    3    2    4
+#4    4    3    4
+# here the row lables are the distinct values occurring inthe columns and the values are thier respective countes in each column
+data.apply(pd.value_counts).fillna(0)
+#   Qu1  Qu2  Qu3
+#1  1.0  1.0  1.0
+#2  0.0  2.0  1.0
+#3  2.0  2.0  0.0
+#4  2.0  0.0  2.0
+#5  0.0  0.0  1.0
